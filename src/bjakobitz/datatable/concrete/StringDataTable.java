@@ -14,7 +14,7 @@ import java.util.Arrays;
  *
  * @author Brad
  */
-public class StringDataTable extends DataTable{
+public class StringDataTable extends DataTable<String>{
 
     /**
      * Creates a generic table
