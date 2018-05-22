@@ -44,7 +44,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<>();
+        columnHeaders = new ArrayList();
         rowStart = 1;
     }
 
@@ -60,7 +60,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<>();
+        columnHeaders = new ArrayList();
         rowStart = 1;
     }
 
@@ -77,7 +77,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<>();
+        columnHeaders = new ArrayList();
         rowStart = 1;
     }
 
