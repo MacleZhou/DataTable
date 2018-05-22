@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package datatable.concrete;
+package bjakobitz.datatable.concrete;
 
-import datatable.*;
+import bjakobitz.datatable.DataTable;
+import bjakobitz.datatable.DataTableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 

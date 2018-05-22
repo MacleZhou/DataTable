@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package datatable;
+package bjakobitz.datatable;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<String>();
+        columnHeaders = new ArrayList<>();
         rowStart = 1;
     }
 
@@ -60,7 +60,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<String>();
+        columnHeaders = new ArrayList<>();
         rowStart = 1;
     }
 
@@ -77,7 +77,7 @@ public abstract class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList<String>();
+        columnHeaders = new ArrayList<>();
         rowStart = 1;
     }
 
@@ -109,7 +109,7 @@ public abstract class DataTable<T> {
      * Gives a deep copy of the column headers
      * @return copy of column headers
      */
-    public ArrayList<String> getColumnHeaders() {
+    public List<String> getColumnHeaders() {
         ArrayList<String> headerCopy = new ArrayList();
         
         columnHeaders.forEach((header) -> {
@@ -203,7 +203,7 @@ public abstract class DataTable<T> {
      * @param lines lines of text table to be parsed.
      * @throws DataTableException 
      */
-    public void parseTableLines(ArrayList<String> lines) throws DataTableException {
+    public void parseTableLines(List<String> lines) throws DataTableException {
         String line;
 
         // add the headers
@@ -281,7 +281,7 @@ public abstract class DataTable<T> {
      * @param rowIndex row index of the row you want.
      * @return 
      */
-    public ArrayList<T> getRow(int rowIndex) {
+    public List<T> getRow(int rowIndex) {
         ArrayList<T> row = new ArrayList();
 
         for (int i = 0; i < columnHeaders.size(); i++) {
@@ -296,7 +296,7 @@ public abstract class DataTable<T> {
      * @return
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public ArrayList<T> getRowByPrimaryKey(T rowValue) throws DataTableException {
+    public List<T> getRowByPrimaryKey(T rowValue) throws DataTableException {
         return getRow(getPrimaryKeyIndex(rowValue));
     }
 
@@ -338,7 +338,7 @@ public abstract class DataTable<T> {
      * @param row The row of values to add
      * @throws DataTableException - Throws if the row's column count doesn't match the header's count.
      */
-    public void addRow(ArrayList<T> row) throws DataTableException {
+    public void addRow(List<T> row) throws DataTableException {
 
         if (row.size() != columnHeaders.size()) {
             throw new DataTableException("The row size does not match the table column count.");
