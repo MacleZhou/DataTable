@@ -8,8 +8,9 @@ package datatable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -18,7 +19,7 @@ import org.apache.commons.io.LineIterator;
  * @author Brad
  * @param <T> The class type held in this table.
  */
-public class DataTable<T> {
+public abstract class DataTable<T> {
 
     protected String title;
     protected String delimiter;
@@ -26,10 +27,10 @@ public class DataTable<T> {
      * The row to start parsing rows at in the file or line array.
      */
     protected int rowStart;
-    protected final ArrayList<ArrayList<String>> columns;
-    protected final HashMap<String, Integer> columnIndices;
-    protected final ArrayList<String> columnHeaders;
-    protected final HashMap<String, Integer> primeKeyIndices;
+    protected final List<List<T>> columns;
+    protected final Map<String, Integer> columnIndices;
+    protected final List<String> columnHeaders;
+    protected final Map<T, Integer> primeKeyIndices;
     protected String primaryKeyName;
 
     /**
@@ -43,7 +44,7 @@ public class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList();
+        columnHeaders = new ArrayList<String>();
         rowStart = 1;
     }
 
@@ -59,7 +60,7 @@ public class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList();
+        columnHeaders = new ArrayList<String>();
         rowStart = 1;
     }
 
@@ -76,7 +77,7 @@ public class DataTable<T> {
         columns = new ArrayList();
         columnIndices = new HashMap();
         primeKeyIndices = new HashMap();
-        columnHeaders = new ArrayList();
+        columnHeaders = new ArrayList<String>();
         rowStart = 1;
     }
 
@@ -149,7 +150,7 @@ public class DataTable<T> {
      * @throws IOException
      * @throws DataTableException - Throws if the column count in a row does not match the table's column count.
      */
-    public final void parseFile(File inputFile) throws IOException, DataTableException {
+    public void parseFile(File inputFile) throws IOException, DataTableException {
         LineIterator it;
 
         it = FileUtils.lineIterator(inputFile);
@@ -177,27 +178,14 @@ public class DataTable<T> {
      * Should be overridden instead of parseFile.
      * @param headerLine The line containing the column headers.
      */
-    protected void parseHeaders(String headerLine) {
-        String[] lineColumns;
-        lineColumns = headerLine.split(delimiter);
-        for (int i = 0; i < lineColumns.length; i++) {
-            columnIndices.put(lineColumns[i], i);
-            columnHeaders.add(lineColumns[i]);
-        }
-    }
+    protected abstract void parseHeaders(String headerLine);
 
     /**
      * Parses a row given by parseFile or parseLines using the delimiter and puts the values in the table 2D array
      * @param line the line to parse into columns
      * @throws DataTableException 
      */
-    protected void parseRow(String line) throws DataTableException {
-        ArrayList<String> row;
-        String[] lineColumns;
-        lineColumns = line.split(delimiter);
-        row = new ArrayList(Arrays.asList(lineColumns));
-        addRow(row);
-    }
+    protected abstract void parseRow(String line) throws DataTableException;
 
     /**
      * Initializes the 2D data structure based on the column headers.
@@ -239,7 +227,7 @@ public class DataTable<T> {
      * @return The index of the row containing the primary key value.
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    private int getPrimaryKeyIndex(String rowValue) throws DataTableException {
+    private int getPrimaryKeyIndex(T rowValue) throws DataTableException {
         int row;
 
         if (primaryKeyName == null) {
@@ -261,7 +249,7 @@ public class DataTable<T> {
      * @param row row index
      * @return 
      */
-    public String getValue(int column, int row) {
+    public T getValue(int column, int row) {
         return columns.get(column).get(row);
     }
 
@@ -271,7 +259,7 @@ public class DataTable<T> {
      * @param row The index of the row.
      * @return 
      */
-    public String getValue(String columnName, int row) {
+    public T getValue(String columnName, int row) {
         int column = columnIndices.get(columnName);
 
         return getValue(column, row);
@@ -284,7 +272,7 @@ public class DataTable<T> {
      * @return
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public String getValueByPrimaryKey(String columnName, String rowValue) throws DataTableException {
+    public T getValueByPrimaryKey(String columnName, T rowValue) throws DataTableException {
         return getValue(columnName, getPrimaryKeyIndex(rowValue));
     }
 
@@ -293,8 +281,8 @@ public class DataTable<T> {
      * @param rowIndex row index of the row you want.
      * @return 
      */
-    public ArrayList<String> getRow(int rowIndex) {
-        ArrayList<String> row = new ArrayList();
+    public ArrayList<T> getRow(int rowIndex) {
+        ArrayList<T> row = new ArrayList();
 
         for (int i = 0; i < columnHeaders.size(); i++) {
             row.add(columns.get(i).get(rowIndex));
@@ -308,7 +296,7 @@ public class DataTable<T> {
      * @return
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public ArrayList<String> getRowByPrimaryKey(String rowValue) throws DataTableException {
+    public ArrayList<T> getRowByPrimaryKey(T rowValue) throws DataTableException {
         return getRow(getPrimaryKeyIndex(rowValue));
     }
 
@@ -319,7 +307,7 @@ public class DataTable<T> {
      * @param value The value to add to the table
      * @param column The column index to add the value to.
      */
-    public void addValue(String value, int column) {
+    public void addValue(T value, int column) {
         for (int i = 0; i < columnHeaders.size(); i++) {
             if (i == column) {
                 columns.get(i).add(value);
@@ -338,7 +326,7 @@ public class DataTable<T> {
      * @param value The value to be set.
      * @param columnName The name of the column you want to add the value to.
      */
-    public void addValue(String value, String columnName) {
+    public void addValue(T value, String columnName) {
         int column = columnIndices.get(columnName);
 
         addValue(value, column);
@@ -350,7 +338,7 @@ public class DataTable<T> {
      * @param row The row of values to add
      * @throws DataTableException - Throws if the row's column count doesn't match the header's count.
      */
-    public void addRow(ArrayList<String> row) throws DataTableException {
+    public void addRow(ArrayList<T> row) throws DataTableException {
 
         if (row.size() != columnHeaders.size()) {
             throw new DataTableException("The row size does not match the table column count.");
@@ -386,7 +374,7 @@ public class DataTable<T> {
      * @param rowValue The primary key value
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public void removeRow(String rowValue) throws DataTableException {
+    public void removeRow(T rowValue) throws DataTableException {
         removeRow(getPrimaryKeyIndex(rowValue));
     }
 
@@ -396,7 +384,7 @@ public class DataTable<T> {
      * @param column The column index.
      * @param row The row index.
      */
-    public void insertValue(String value, int column, int row) {
+    public void insertValue(T value, int column, int row) {
         columns.get(column).set(row, value);
         if (columnHeaders.get(column).equals(primaryKeyName)) {
             primeKeyIndices.put(value, row);
@@ -409,7 +397,7 @@ public class DataTable<T> {
      * @param columnName The header name for a column
      * @param row The row index
      */
-    public void insertValue(String value, String columnName, int row) {
+    public void insertValue(T value, String columnName, int row) {
         int column = columnIndices.get(columnName);
 
         insertValue(value, column, row);
@@ -422,7 +410,7 @@ public class DataTable<T> {
      * @param rowValue The row that matches a primary key value
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public void insertValueByPrimaryKey(String value, String columnName, String rowValue) throws DataTableException {
+    public void insertValueByPrimaryKey(T value, String columnName, String rowValue) throws DataTableException {
         int row;
 
         if (primaryKeyName == null) {
