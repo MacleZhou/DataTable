@@ -13,39 +13,38 @@ import java.util.ArrayList;
  *
  * @author Brad
  */
-public class IntegerDataTable extends DataTable<Integer>{
+public class DoubleDataTable extends DataTable<Double>{
 
     /**
-     * Creates a Integer table
+     * Creates a Double table
      * delimiter is defaulted to a space
      * rowStart is defaulted to 1 so is skips over the headers
      */
-    public IntegerDataTable() {
+    public DoubleDataTable() {
         super();
     }
 
     /**
-     * Creates a Integer table with the given title
+     * Creates a Double table with the given title
      * delimiter is defaulted to space
      * rowStart is defaulted to 1 so is skips over the headers
      * @param title The title of the table
      */
-    public IntegerDataTable(String title) {
+    public DoubleDataTable(String title) {
         super(title);
     }
 
     /**
-     * Creates a Integer table with the given title
+     * Creates a Double table with the given title
      * delimiter is set to the passed in delimiter
      * rowStart is defaulted to 1 so is skips over the headers
      * @param title The title of the table
      * @param delimiter The delimeter used to parse the headers and rows into columns
      */
-    public IntegerDataTable(String title, String delimiter) {
+    public DoubleDataTable(String title, String delimiter) {
         super(title,delimiter);
     }
-
-
+    
     /**
      * Parses a row given by parseFile or parseLines using the delimiter and puts the values in the table 2D array
      * @param line the line to parse into columns
@@ -53,13 +52,14 @@ public class IntegerDataTable extends DataTable<Integer>{
      */
     @Override
     protected void parseRow(String line) throws DataTableException {
-        ArrayList<Integer> row;
+        ArrayList<Double> row;
         String[] lineColumns;
         lineColumns = line.split(delimiter);
         row = new ArrayList();
         for (String lineColumn : lineColumns) {
-            row.add(Integer.parseInt(lineColumn));
+            row.add(Double.parseDouble(lineColumn));
         }
         addRow(row);
     }
+    
 }
