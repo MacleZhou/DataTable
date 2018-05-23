@@ -27,6 +27,7 @@ public abstract class DataTable<T> {
      * The row to start parsing rows at in the file or line array.
      */
     protected int rowStart;
+    protected int rowCount;
     protected final List<List<T>> columns;
     protected final Map<String, Integer> columnIndices;
     protected final List<String> columnHeaders;
@@ -46,6 +47,7 @@ public abstract class DataTable<T> {
         primeKeyIndices = new HashMap();
         columnHeaders = new ArrayList();
         rowStart = 1;
+        rowCount = 0;
     }
 
     /**
@@ -62,6 +64,7 @@ public abstract class DataTable<T> {
         primeKeyIndices = new HashMap();
         columnHeaders = new ArrayList();
         rowStart = 1;
+        rowCount = 0;
     }
 
     /**
@@ -79,6 +82,7 @@ public abstract class DataTable<T> {
         primeKeyIndices = new HashMap();
         columnHeaders = new ArrayList();
         rowStart = 1;
+        rowCount = 0;
     }
 
     public String getTitle() {
@@ -105,6 +109,10 @@ public abstract class DataTable<T> {
         return primaryKeyName;
     }
 
+    public int getRowCount() {
+        return rowCount;
+    }
+    
     /**
      * Gives a deep copy of the column headers
      * @return copy of column headers
@@ -116,6 +124,22 @@ public abstract class DataTable<T> {
             headerCopy.add(header);
         });
         return headerCopy;
+    }
+    
+    /**
+     * This method is meant to initialize your table.
+     * It will clear any data you previously had and start a new table.
+     * @param headers Header names.
+     */
+    public final void setColumnHeaders(List<String> headers){
+        columnHeaders.clear();
+        columnIndices.clear();
+        columns.clear();
+        for(int i=0;i<headers.size();i++){
+            columnHeaders.add(headers.get(i));
+            columnIndices.put(headers.get(i), i);
+            columns.add(new ArrayList());
+        }
     }
     
     /**
@@ -325,6 +349,7 @@ public abstract class DataTable<T> {
                 primeKeyIndices.put(value, i);
             }
         }
+        rowCount++;
     }
 
     /**
@@ -356,6 +381,7 @@ public abstract class DataTable<T> {
                 primeKeyIndices.put(row.get(i), i);
             }
         }
+        rowCount++;
     }
 
     /**
@@ -372,6 +398,7 @@ public abstract class DataTable<T> {
                 }
 
                 columns.get(i).remove(row);
+                rowCount--;
             }
         }
     }
