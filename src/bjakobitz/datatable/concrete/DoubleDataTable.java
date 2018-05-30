@@ -57,7 +57,11 @@ public class DoubleDataTable extends DataTable<Double>{
         lineColumns = line.split(delimiter);
         row = new ArrayList();
         for (String lineColumn : lineColumns) {
-            row.add(Double.parseDouble(lineColumn));
+            try{
+                    row.add(Double.parseDouble(lineColumn));
+                }catch(NullPointerException | NumberFormatException ex){
+                    row.add(Double.NaN);
+                }
         }
         addRow(row);
     }

@@ -444,7 +444,7 @@ public abstract class DataTable<T> {
      * @param rowValue The row that matches a primary key value
      * @throws DataTableException - Throws an exception if the primary key column is not set or the primary key value could not be found.
      */
-    public void insertValueByPrimaryKey(T value, String columnName, String rowValue) throws DataTableException {
+    public void insertValueByPrimaryKey(T value, String columnName, T rowValue) throws DataTableException {
         int row;
 
         if (primaryKeyName == null) {

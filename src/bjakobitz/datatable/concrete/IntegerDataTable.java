@@ -58,7 +58,11 @@ public class IntegerDataTable extends DataTable<Integer>{
         lineColumns = line.split(delimiter);
         row = new ArrayList();
         for (String lineColumn : lineColumns) {
-            row.add(Integer.parseInt(lineColumn));
+            try{
+                    row.add(Integer.parseInt(lineColumn));
+                }catch(NullPointerException | NumberFormatException ex){
+                    row.add(Integer.MIN_VALUE);
+                }
         }
         addRow(row);
     }
