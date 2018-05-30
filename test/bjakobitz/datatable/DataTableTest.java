@@ -28,12 +28,14 @@ public class DataTableTest {
     
     
     private File inputFile;
+    DataTable instance;
     
     public DataTableTest() {
     }
     
     @BeforeClass
     public static void setUpClass() {
+        
     }
     
     @AfterClass
@@ -41,10 +43,10 @@ public class DataTableTest {
     }
     
     @Before
-    public void setUp() {
+    public void setUp() throws IOException, DataTableException {
         inputFile = new File("test/data/ci.out");
-        
-        
+        instance = new DataTableImpl("Table","\\|");
+        instance.parseFile(inputFile);
         
     }
     
@@ -58,7 +60,7 @@ public class DataTableTest {
     @Test
     public void testGetTitle() {
         System.out.println("getTitle");
-        DataTable instance = new DataTableImpl("Title");
+        instance = new DataTableImpl("Title");
         String expResult = "Title";
         String result = instance.getTitle();
         assertEquals(expResult, result);
@@ -71,7 +73,7 @@ public class DataTableTest {
     public void testSetTitle() {
         System.out.println("setTitle");
         String title = "Title";
-        DataTable instance = new DataTableImpl();
+        instance = new DataTableImpl();
         instance.setTitle(title);
         String result = instance.getTitle();
         assertEquals(title,result);
@@ -83,7 +85,7 @@ public class DataTableTest {
     @Test
     public void testGetDelimiter() {
         System.out.println("getDelimiter");
-        DataTable instance = new DataTableImpl("Title","\\|");
+        instance = new DataTableImpl("Title","\\|");
         String expResult = "\\|";
         String result = instance.getDelimiter();
         assertEquals(expResult, result);
@@ -96,7 +98,7 @@ public class DataTableTest {
     public void testSetDelimiter() {
         System.out.println("setDelimiter");
         String delimiter = "\\|";
-        DataTable instance = new DataTableImpl();
+        instance = new DataTableImpl();
         instance.setDelimiter(delimiter);
         String result = instance.getDelimiter();
         assertEquals(delimiter,result);
@@ -108,7 +110,7 @@ public class DataTableTest {
     @Test
     public void testGetPrimaryKeyName() {
         System.out.println("getPrimaryKeyName");
-        DataTable instance = new DataTableImpl();
+        instance = new DataTableImpl();
         String expResult = "yr";
         instance.setPrimaryKeyName(expResult);
         String result = instance.getPrimaryKeyName();
@@ -121,7 +123,6 @@ public class DataTableTest {
     @Test
     public void testGetRowCount() throws IOException, DataTableException {
         System.out.println("getRowCount");
-        DataTable instance = new DataTableImpl();
         instance.parseFile(inputFile);
         int expResult = 101;
         int result = instance.getRowCount();
@@ -134,7 +135,6 @@ public class DataTableTest {
     @Test
     public void testGetColumnHeaders() throws IOException, DataTableException {
         System.out.println("getColumnHeaders");
-        DataTable instance = new DataTableImpl();
         instance.parseFile(inputFile);
         List<String> expResult = new ArrayList();
         expResult.add("nrot_yrs");
@@ -165,7 +165,7 @@ public class DataTableTest {
         headers.add("yrly_ave");
         headers.add("Low_90.00%");
         headers.add("High_90.00%");
-        DataTable instance = new DataTableImpl();
+        instance = new DataTableImpl();
         instance.setColumnHeaders(headers);
         List<String> result = instance.getColumnHeaders();
         assertEquals(headers,result);
@@ -177,7 +177,7 @@ public class DataTableTest {
     @Test
     public void testGetRowStart() {
         System.out.println("getRowStart");
-        DataTable instance = new DataTableImpl();
+        instance = new DataTableImpl();
         instance.setRowStart(5);
         int expResult = 5;
         int result = instance.getRowStart();
@@ -190,7 +190,7 @@ public class DataTableTest {
     @Test
     public void testParseFile() throws Exception {
         System.out.println("parseFile");
-        DataTable instance = new DataTableImpl("Title","\\|");
+        instance = new DataTableImpl("Title","\\|");
         instance.parseFile(inputFile);
     }
 
@@ -201,7 +201,7 @@ public class DataTableTest {
     public void testParseHeaders() throws IOException {
         System.out.println("parseHeaders");
         String headerLine = FileUtils.lineIterator(inputFile).nextLine();
-        DataTable instance = new DataTableImpl("Title","\\|");
+        instance = new DataTableImpl("Title","\\|");
         instance.parseHeaders(headerLine);
         List<String> headers = new ArrayList();
         headers.add("nrot_yrs");
@@ -223,7 +223,7 @@ public class DataTableTest {
         System.out.println("parseTableLines");
         String encoding = null;
         List<String> lines = FileUtils.readLines(inputFile, encoding);
-        DataTable instance = new DataTableImpl("Title","\\|");
+        instance = new DataTableImpl("Title","\\|");
         instance.parseTableLines(lines);
     }
 
@@ -235,8 +235,6 @@ public class DataTableTest {
         System.out.println("getValue");
         int column = 1;
         int row = 17;
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         Object expResult = 9;
         Object result = instance.getValue(column, row);
         assertEquals(expResult, result);
@@ -251,7 +249,7 @@ public class DataTableTest {
         String columnName = "ncycles";
         String encoding = null;
         int row = 18;
-        DataTable instance = new DataTableImpl("Title", "\\|");
+        instance = new DataTableImpl("Title", "\\|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
         Object expResult = 10;
         Object result = instance.getValue(columnName, row);
@@ -266,8 +264,6 @@ public class DataTableTest {
         System.out.println("getValueByPrimaryKey");
         String columnName = "#events";
         Object rowValue = 10;
-        DataTable instance = new DataTableImpl("Title", "\\|");
-        instance.parseFile(inputFile);
         instance.setPrimaryKeyName("yr");
         Object expResult = 5.00;
         Object result = instance.getValueByPrimaryKey(columnName, rowValue);
@@ -282,7 +278,7 @@ public class DataTableTest {
         System.out.println("getRow");
         String encoding = null;
         int rowIndex = 13;
-        DataTable instance = new DataTableImpl("Title", "\\|");
+        instance = new DataTableImpl("Title", "\\|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
         List expResult = new ArrayList();
         expResult.add(2);
@@ -304,8 +300,6 @@ public class DataTableTest {
     public void testGetRowByPrimaryKey() throws Exception {
         System.out.println("getRowByPrimaryKey");
         Object rowValue = 14;
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         instance.setPrimaryKeyName("yr");
         List expResult = new ArrayList();
         expResult.add(2);
@@ -328,8 +322,6 @@ public class DataTableTest {
         System.out.println("addValue");
         Object value = 51;
         int column = 2;
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         instance.addValue(value, column);
         Object result = instance.getValue(2, instance.rowCount-1);
         assertEquals(value,result);
@@ -343,8 +335,6 @@ public class DataTableTest {
         System.out.println("addValue");
         Object value = 51;
         String columnName = "ncycles";
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         instance.addValue(value, columnName);
         Object result = instance.getValue(2, instance.rowCount-1);
         assertEquals(value,result);
@@ -356,7 +346,6 @@ public class DataTableTest {
     @Test
     public void testAddRow() throws Exception {
         System.out.println("addRow");
-        DataTable instance = new DataTableImpl();
         List expResult = new ArrayList();
         expResult.add(2);
         expResult.add(7);
@@ -380,7 +369,6 @@ public class DataTableTest {
     public void testRemoveRow_int() {
         System.out.println("removeRow");
         int row = 3;
-        DataTable instance = new DataTableImpl("Title","\\|");
         List oldRow = instance.getRow(row);
         instance.removeRow(row);
         List newRow = instance.getRow(row);
@@ -395,7 +383,6 @@ public class DataTableTest {
     public void testRemoveRow_GenericType() throws DataTableException {
         System.out.println("removeRow");
         Object rowValue = 15;
-        DataTable instance = new DataTableImpl();
         List oldRow = instance.getRowByPrimaryKey(rowValue);
         instance.removeRow(rowValue);
         try {
@@ -415,7 +402,6 @@ public class DataTableTest {
         Object value = 51;
         int column = 2;
         int row = 10;
-        DataTable instance = new DataTableImpl();
         instance.insertValue(value, column, row);
         Object result = instance.getValue(column, row);
         
@@ -431,7 +417,6 @@ public class DataTableTest {
         Object value = 51;
         String columnName = "yr";
         int row = 10;
-        DataTable instance = new DataTableImpl();
         instance.insertValue(value, columnName, row);
         Object result = instance.getValue(columnName, row);
         
@@ -447,7 +432,6 @@ public class DataTableTest {
         Object value = 5;
         String columnName = "nrot_yrs";
         Object rowValue = 20;
-        DataTable instance = new DataTableImpl();
         instance.insertValueByPrimaryKey(value, columnName, rowValue);
         Object result = instance.getValueByPrimaryKey(columnName, rowValue);
         
@@ -460,10 +444,8 @@ public class DataTableTest {
     @Test
     public void testWriteFile_File_int() throws Exception {
         System.out.println("writeFile");
-        File outputFile = null;
+        File outputFile = new File("test_output.txt");
         int startingRow = 0;
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         instance.writeFile(outputFile, startingRow);
         // TODO review the generated test code and remove the default call to fail.
         
@@ -476,8 +458,6 @@ public class DataTableTest {
     public void testWriteFile_File() throws Exception {
         System.out.println("writeFile");
         File outputFile = null;
-        DataTable instance = new DataTableImpl("Title","\\|");
-        instance.parseFile(inputFile);
         instance.writeFile(outputFile);
         // TODO review the generated test code and remove the default call to fail.
         
