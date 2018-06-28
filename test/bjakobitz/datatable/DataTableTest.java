@@ -28,7 +28,7 @@ public class DataTableTest {
     
     
     private File inputFile;
-    DataTable instance;
+    DataTable<Double> instance;
     
     public DataTableTest() {
     }
@@ -46,6 +46,7 @@ public class DataTableTest {
     public void setUp() throws IOException, DataTableException {
         inputFile = new File("test/data/ci.out");
         instance = new DataTableImpl("Table","\\|");
+        instance.setPrimaryKeyName("yr");
         instance.parseFile(inputFile);
         
     }
@@ -110,7 +111,6 @@ public class DataTableTest {
     @Test
     public void testGetPrimaryKeyName() {
         System.out.println("getPrimaryKeyName");
-        instance = new DataTableImpl();
         String expResult = "yr";
         instance.setPrimaryKeyName(expResult);
         String result = instance.getPrimaryKeyName();
@@ -123,8 +123,7 @@ public class DataTableTest {
     @Test
     public void testGetRowCount() throws IOException, DataTableException {
         System.out.println("getRowCount");
-        instance.parseFile(inputFile);
-        int expResult = 101;
+        int expResult = 100;
         int result = instance.getRowCount();
         assertEquals(expResult, result);
     }
@@ -135,7 +134,6 @@ public class DataTableTest {
     @Test
     public void testGetColumnHeaders() throws IOException, DataTableException {
         System.out.println("getColumnHeaders");
-        instance.parseFile(inputFile);
         List<String> expResult = new ArrayList();
         expResult.add("nrot_yrs");
         expResult.add("ncycles");
@@ -235,7 +233,7 @@ public class DataTableTest {
         System.out.println("getValue");
         int column = 1;
         int row = 17;
-        Object expResult = 9;
+        Double expResult = 9.0;
         Object result = instance.getValue(column, row);
         assertEquals(expResult, result);
     }
@@ -251,7 +249,7 @@ public class DataTableTest {
         int row = 18;
         instance = new DataTableImpl("Title", "\\|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
-        Object expResult = 10;
+        Object expResult = 10.0;
         Object result = instance.getValue(columnName, row);
         assertEquals(expResult, result);
     }
@@ -263,7 +261,7 @@ public class DataTableTest {
     public void testGetValueByPrimaryKey() throws Exception {
         System.out.println("getValueByPrimaryKey");
         String columnName = "#events";
-        Object rowValue = 10;
+        Double rowValue = 10.0;
         instance.setPrimaryKeyName("yr");
         Object expResult = 5.00;
         Object result = instance.getValueByPrimaryKey(columnName, rowValue);
@@ -280,10 +278,10 @@ public class DataTableTest {
         int rowIndex = 13;
         instance = new DataTableImpl("Title", "\\|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
-        List expResult = new ArrayList();
-        expResult.add(2);
-        expResult.add(7);
-        expResult.add(14);
+        List<Double> expResult = new ArrayList();
+        expResult.add(2.0);
+        expResult.add(7.0);
+        expResult.add(14.0);
         expResult.add(1.00);
         expResult.add(0.40994);
         expResult.add(3.90917);
@@ -299,17 +297,18 @@ public class DataTableTest {
     @Test
     public void testGetRowByPrimaryKey() throws Exception {
         System.out.println("getRowByPrimaryKey");
-        Object rowValue = 14;
+        Double rowValue = 14.0;
         instance.setPrimaryKeyName("yr");
-        List expResult = new ArrayList();
-        expResult.add(2);
-        expResult.add(7);
-        expResult.add(14);
+        List<Double> expResult = new ArrayList();
+        expResult.add(2.0);
+        expResult.add(7.0);
+        expResult.add(14.0);
         expResult.add(1.00);
         expResult.add(0.40994);
         expResult.add(3.90917);
         expResult.add(2.25758);
         expResult.add(79.425);
+        instance.addRow(expResult);
         List result = instance.getRowByPrimaryKey(rowValue);
         assertEquals(expResult, result);
     }
@@ -320,7 +319,7 @@ public class DataTableTest {
     @Test
     public void testAddValue_GenericType_int() throws IOException, DataTableException {
         System.out.println("addValue");
-        Object value = 51;
+        Double value = 51.0;
         int column = 2;
         instance.addValue(value, column);
         Object result = instance.getValue(2, instance.rowCount-1);
@@ -333,10 +332,10 @@ public class DataTableTest {
     @Test
     public void testAddValue_GenericType_String() throws IOException, DataTableException {
         System.out.println("addValue");
-        Object value = 51;
+        Double value = 51.0;
         String columnName = "ncycles";
         instance.addValue(value, columnName);
-        Object result = instance.getValue(2, instance.rowCount-1);
+        Object result = instance.getValue(columnName, instance.rowCount-1);
         assertEquals(value,result);
     }
 
@@ -380,9 +379,27 @@ public class DataTableTest {
      * Test of removeRow method, of class DataTable.
      */
     @Test
-    public void testRemoveRow_GenericType() throws DataTableException {
-        System.out.println("removeRow");
-        Object rowValue = 15;
+    public void testRemoveRow_updatedIndices_GenericType() throws DataTableException {
+        System.out.println("removeRow_reindex");
+        instance.setPrimaryKeyName("yr");
+        Double rowValue = 15.0;
+        Double newValue = 20.0;
+        List oldRow = instance.getRowByPrimaryKey(rowValue);
+        List newCopy = instance.getRowByPrimaryKey(newValue);
+        instance.removeRow(rowValue);
+        try {
+            List newRow = instance.getRowByPrimaryKey(newValue);
+            assertEquals(newCopy,newRow);
+        } catch (DataTableException ex) {
+            
+        }
+    }
+    
+    @Test
+    public void testRemoveRow_removed_GenericType() throws DataTableException{
+        System.out.println("removeRow_remove");
+        instance.setPrimaryKeyName("yr");
+        Double rowValue = 15.0;
         List oldRow = instance.getRowByPrimaryKey(rowValue);
         instance.removeRow(rowValue);
         try {
@@ -399,7 +416,7 @@ public class DataTableTest {
     @Test
     public void testInsertValue_3args_1() {
         System.out.println("insertValue");
-        Object value = 51;
+        Double value = 51.0;
         int column = 2;
         int row = 10;
         instance.insertValue(value, column, row);
@@ -414,7 +431,7 @@ public class DataTableTest {
     @Test
     public void testInsertValue_3args_2() {
         System.out.println("insertValue");
-        Object value = 51;
+        Double value = 51.0;
         String columnName = "yr";
         int row = 10;
         instance.insertValue(value, columnName, row);
@@ -429,9 +446,11 @@ public class DataTableTest {
     @Test
     public void testInsertValueByPrimaryKey() throws Exception {
         System.out.println("insertValueByPrimaryKey");
-        Object value = 5;
+        Double value = 5.0;
         String columnName = "nrot_yrs";
-        Object rowValue = 20;
+        
+        Double rowValue = 20.0;
+
         instance.insertValueByPrimaryKey(value, columnName, rowValue);
         Object result = instance.getValueByPrimaryKey(columnName, rowValue);
         
@@ -457,13 +476,13 @@ public class DataTableTest {
     @Test
     public void testWriteFile_File() throws Exception {
         System.out.println("writeFile");
-        File outputFile = null;
+        File outputFile = new File("output.out");
         instance.writeFile(outputFile);
-        // TODO review the generated test code and remove the default call to fail.
+        System.err.print("Remember to diff the output file.");
         
     }
 
-    public class DataTableImpl extends DataTable {
+    public class DataTableImpl extends DataTable<Double> {
 
         public DataTableImpl(){
             super();

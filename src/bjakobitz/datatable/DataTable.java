@@ -21,6 +21,8 @@ import org.apache.commons.io.LineIterator;
  */
 public abstract class DataTable<T> {
 
+    private boolean parsed;
+    
     protected String title;
     protected String delimiter;
     /**
@@ -48,6 +50,7 @@ public abstract class DataTable<T> {
         columnHeaders = new ArrayList();
         rowStart = 1;
         rowCount = 0;
+        parsed = false;
     }
 
     /**
@@ -65,6 +68,7 @@ public abstract class DataTable<T> {
         columnHeaders = new ArrayList();
         rowStart = 1;
         rowCount = 0;
+        parsed = false;
     }
 
     /**
@@ -83,6 +87,7 @@ public abstract class DataTable<T> {
         columnHeaders = new ArrayList();
         rowStart = 1;
         rowCount = 0;
+        parsed = false;
     }
 
     public String getTitle() {
@@ -148,6 +153,7 @@ public abstract class DataTable<T> {
      */
     public void setPrimaryKeyName(String primaryKeyName) {
         this.primaryKeyName = primaryKeyName;
+        resetPrimaryKeys();
     }
 
     /**
@@ -177,6 +183,8 @@ public abstract class DataTable<T> {
     public void parseFile(File inputFile) throws IOException, DataTableException {
         LineIterator it;
 
+        
+        if(!parsed){
         it = FileUtils.lineIterator(inputFile);
 
         try {
@@ -192,9 +200,12 @@ public abstract class DataTable<T> {
             while (it.hasNext()) {
                 parseRow(it.nextLine());
             }
+            parsed = true;
         } finally {
             it.close();
         }
+        }else
+            throw new DataTableException("You may only parse a table once per instance.");
     }
 
     /**
@@ -206,8 +217,8 @@ public abstract class DataTable<T> {
         String[] lineColumns;
         lineColumns = headerLine.split(delimiter);
         for (int i = 0; i < lineColumns.length; i++) {
-            columnIndices.put(lineColumns[i], i);
-            columnHeaders.add(lineColumns[i]);
+            columnIndices.put(lineColumns[i].trim(), i); // I trim the headers so the lookup is clearer.
+            columnHeaders.add(lineColumns[i].trim());
         }
     }
 
@@ -237,6 +248,7 @@ public abstract class DataTable<T> {
     public void parseTableLines(List<String> lines) throws DataTableException {
         String line;
 
+        if(!parsed){
         // add the headers
         if (lines.size() > 0) {
             line = lines.get(0);
@@ -250,6 +262,9 @@ public abstract class DataTable<T> {
             line = lines.get(i);
             parseRow(line);
         }
+        parsed = true;
+        }else
+            throw new DataTableException("You may only parse a table once per instance.");
     }
 
     /**
@@ -346,7 +361,7 @@ public abstract class DataTable<T> {
                 columns.get(i).add(null);
             }
             if (columnHeaders.get(i).equals(primaryKeyName)) {
-                primeKeyIndices.put(value, i);
+                primeKeyIndices.put(value, rowCount);
             }
         }
         rowCount++;
@@ -378,7 +393,7 @@ public abstract class DataTable<T> {
         for (int i = 0; i < columns.size(); i++) {
             columns.get(i).add(row.get(i));
             if (columnHeaders.get(i).equals(primaryKeyName)) {
-                primeKeyIndices.put(row.get(i), i);
+                primeKeyIndices.put(row.get(i), rowCount);
             }
         }
         rowCount++;
@@ -389,18 +404,21 @@ public abstract class DataTable<T> {
      * Removes the primary key index if there is one.
      * @param row The row index to remove.
      */
-    public void removeRow(int row) {
+    public void removeRow(int row) { 
         for (int i = 0; i < columns.size(); i++) {
             if (i < columns.get(i).size()) {
                 if (columnHeaders.get(i).equals(primaryKeyName)) // remove the primary key index first before removing the row.
                 {
-                    primeKeyIndices.remove(columns.get(i).get(row), i);
+                    primeKeyIndices.remove(columns.get(i).get(row), row);
                 }
 
                 columns.get(i).remove(row);
-                rowCount--;
+               
             }
         }
+         rowCount--;
+         resetPrimaryKeys();  // Maybe reseting them all is not the most efficient but 
+                              // I won't miss any this way because it is a hash map with no order.
     }
 
     /**
@@ -458,6 +476,20 @@ public abstract class DataTable<T> {
         }
 
         insertValue(value, columnName, row);
+    }
+    
+    private void resetPrimaryKeys(){
+        int columnIndex;
+        
+        if(primaryKeyName != null && parsed){
+            primeKeyIndices.clear();
+            columnIndex = columnIndices.get(primaryKeyName);
+
+            for(int i=0;i<columns.get(columnIndex).size();i++){
+                if(!primeKeyIndices.containsKey(columns.get(columnIndex).get(i)))
+                    primeKeyIndices.put(columns.get(columnIndex).get(i), i);
+            }
+        }
     }
 
     /**
