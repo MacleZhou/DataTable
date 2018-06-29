@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,7 +19,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import java.lang.NumberFormatException;
 
 /**
  *
@@ -45,7 +45,7 @@ public class DataTableTest {
     @Before
     public void setUp() throws IOException, DataTableException {
         inputFile = new File("test/data/ci.out");
-        instance = new DataTableImpl("Table","\\|");
+        instance = new DataTableImpl("Table","|");
         instance.setPrimaryKeyName("yr");
         instance.parseFile(inputFile);
         
@@ -199,7 +199,7 @@ public class DataTableTest {
     public void testParseHeaders() throws IOException {
         System.out.println("parseHeaders");
         String headerLine = FileUtils.lineIterator(inputFile).nextLine();
-        instance = new DataTableImpl("Title","\\|");
+        instance = new DataTableImpl("Title","|");
         instance.parseHeaders(headerLine);
         List<String> headers = new ArrayList();
         headers.add("nrot_yrs");
@@ -247,7 +247,7 @@ public class DataTableTest {
         String columnName = "ncycles";
         String encoding = null;
         int row = 18;
-        instance = new DataTableImpl("Title", "\\|");
+        instance = new DataTableImpl("Title", "|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
         Object expResult = 10.0;
         Object result = instance.getValue(columnName, row);
@@ -276,7 +276,7 @@ public class DataTableTest {
         System.out.println("getRow");
         String encoding = null;
         int rowIndex = 13;
-        instance = new DataTableImpl("Title", "\\|");
+        instance = new DataTableImpl("Title", "|");
         instance.parseTableLines(FileUtils.readLines(inputFile, encoding));
         List<Double> expResult = new ArrayList();
         expResult.add(2.0);
@@ -465,6 +465,9 @@ public class DataTableTest {
         System.out.println("writeFile");
         File outputFile = new File("test_output.txt");
         int startingRow = 0;
+        if(outputFile.exists())
+            outputFile.delete();
+        writeHeaders(outputFile);
         instance.writeFile(outputFile, startingRow);
         // TODO review the generated test code and remove the default call to fail.
         
@@ -477,9 +480,22 @@ public class DataTableTest {
     public void testWriteFile_File() throws Exception {
         System.out.println("writeFile");
         File outputFile = new File("output.out");
+        if(outputFile.exists())
+            outputFile.delete();
+        writeHeaders(outputFile);
         instance.writeFile(outputFile);
         System.err.print("Remember to diff the output file.");
         
+    }
+    
+    private void writeHeaders(File outputFile) throws IOException{
+        String encoding = null;
+        String line = "";
+        for(int i=0;i<instance.getColumnHeaders().size();i++){
+            line += instance.getColumnHeaders().get(i) +  " " + instance.delimiter + " ";
+            
+        }
+        FileUtils.writeStringToFile(outputFile, line + System.lineSeparator(), encoding, true);
     }
 
     public class DataTableImpl extends DataTable<Double> {
@@ -501,7 +517,7 @@ public class DataTableTest {
             
             ArrayList<Double> row;
             String[] lineColumns;
-            lineColumns = line.trim().split(delimiter);
+            lineColumns = line.trim().split(Pattern.quote(delimiter));
             row = new ArrayList();
             for (String lineColumn : lineColumns) {
                 try{
@@ -515,12 +531,12 @@ public class DataTableTest {
             }
         
         private void addFullRow(ArrayList<Double> row) {
-        if (row.size() < columnHeaders.size()) {
-            for (int i = row.size(); i < columnHeaders.size(); i++) {
-                row.add(Double.NaN);
+            if (row.size() < columnHeaders.size()) {
+                for (int i = row.size(); i < columnHeaders.size(); i++) {
+                    row.add(Double.NaN);
+                }
             }
         }
-    }
     }
     
 }

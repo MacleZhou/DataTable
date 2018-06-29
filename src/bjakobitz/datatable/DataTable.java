@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -215,7 +216,7 @@ public abstract class DataTable<T> {
      */
     protected void parseHeaders(String headerLine){
         String[] lineColumns;
-        lineColumns = headerLine.split(delimiter);
+        lineColumns = headerLine.split(Pattern.quote(delimiter));
         for (int i = 0; i < lineColumns.length; i++) {
             columnIndices.put(lineColumns[i].trim(), i); // I trim the headers so the lookup is clearer.
             columnHeaders.add(lineColumns[i].trim());
@@ -225,6 +226,7 @@ public abstract class DataTable<T> {
     /**
      * Parses a row given by parseFile or parseLines using the delimiter and puts the values in the table 2D array
      * @param line the line to parse into columns
+     * I would suggest using Pattern.quote(delimiter) if you string.split
      * @throws DataTableException 
      */
     protected abstract void parseRow(String line) throws DataTableException;
@@ -501,7 +503,7 @@ public abstract class DataTable<T> {
     public void writeFile(File outputFile, int startingRow) throws IOException {
         String encoding = null;
         String line;
-
+        
         for (int i = startingRow; i < columns.get(0).size(); i++) {
             line = "";
             for (int j = 0; j < columnHeaders.size(); j++) {
